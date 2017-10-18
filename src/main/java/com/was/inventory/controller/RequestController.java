@@ -155,7 +155,21 @@ public class RequestController {
                     }
 
                     PaymentMethod paymentMethod = paymentMethodRepository.getById((Integer) requestMap.get("methodId"));
-                    payment = new Payment((Date) requestMap.get("dueDate"), (Long) requestMap.get("paid"), (Long) requestMap.get("payable"), (Date) requestMap.get("data"), customer, paymentMethod);
+                    try {
+                        System.out.println("Customer: " + customer);
+                        System.out.println("PaymentMethod: "+ paymentMethod.getName() );
+                        System.out.println("Due Date: "+ requestMap.get("dueDate").toString());
+                        System.out.println("paid: "+new Long((int)requestMap.get("paid")) );
+                        System.out.println("payable: "+ new Long((int) requestMap.get("payable")));
+                        System.out.println( "date" + dateFormat.parse(requestMap.get("date").toString()) );
+
+                        payment = new Payment(dateFormat.parse(requestMap.get("dueDate").toString()), new Long((int)requestMap.get("paid")), new Long((int) requestMap.get("payable")), dateFormat.parse(requestMap.get("date").toString()), customer, paymentMethod);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    } catch (NullPointerException e){
+                        e.printStackTrace();
+                        System.out.println(e.getCause());
+                    }
 
 
                 } else if (requestMap.containsKey("supplierId")) {
@@ -164,12 +178,39 @@ public class RequestController {
                     Supplier supplier = supplierRepository.getById((Integer) requestMap.get("supplierId"));
 
                     PaymentMethod paymentMethod = paymentMethodRepository.getById((Integer) requestMap.get("methodId"));
-                    payment = new Payment((Date) requestMap.get("dueDate"), (Long) requestMap.get("paid"), (Long) requestMap.get("payable"), (Date) requestMap.get("data"), supplier, paymentMethod);
+                    try {
+                        payment = new Payment(dateFormat.parse(requestMap.get("dueDate").toString()), new Long((int)requestMap.get("paid")), new Long((int)requestMap.get("payable")), dateFormat.parse(requestMap.get("date").toString()), supplier, paymentMethod);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
 
                 }
 
                 paymentRepository.save(payment);
 
+                break;
+            }
+
+            case "paymentMethod":{
+
+                logger.debug("The condition for insertion of paymentMethod");
+                logger.debug("Creating the reference of the paymentMethod class.");
+                PaymentMethod paymentMethod = null;
+                try {
+                    logger.info("Writing the value into the object of the paymentMethod using the request.");
+                    paymentMethod = mapper.readValue(requestBody, PaymentMethod.class);
+                } catch (IOException e) {
+
+                    logger.error("Error while writing the paymentMethod data into its object", e);
+                }
+
+                try {
+                    logger.info("Inserting the record into the table of PaymentMethod");
+                    paymentMethodRepository.save(paymentMethod);
+                } catch (DataIntegrityViolationException e) {
+                    logger.error("Error while inserting the PaymentMethod data into its database table.", e);
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
+                }
                 break;
             }
 
