@@ -4,4 +4,6 @@ import com.was.inventory.model.PaymentMethod;
 import org.springframework.data.repository.CrudRepository;
 
 public interface PaymentMethodRepository extends CrudRepository<PaymentMethod, Integer> {
+
+    PaymentMethod getById(int id);
 }

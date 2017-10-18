@@ -12,7 +12,7 @@ public interface SupplierRepository extends CrudRepository<Supplier, Long> {
     List<Supplier> getAllByInformationNotNull();
 //    List<Supplier> getAllByInformation();
 
-    Supplier findById(int supplierId);
+    Supplier getById(int supplierId);
 
 
 }

@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.was.inventory.Repositories.*;
-import com.was.inventory.model.Customer;
-import com.was.inventory.model.Information;
-import com.was.inventory.model.Payment;
-import com.was.inventory.model.Supplier;
+import com.was.inventory.model.*;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.validator.constraints.NotBlank;
@@ -18,17 +15,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Date;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Waseem ud din
@@ -90,7 +83,7 @@ public class RequestController {
         ObjectNode responseBody = mapper.createObjectNode();
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Map<String,String> requestMap = null;
+        Map<String, Object> requestMap = new HashMap<String, Object>();
         logger.debug("Checking the condition of the type.");
         switch (type) {
             case "customer": {
@@ -150,33 +143,32 @@ public class RequestController {
 
 
                 logger.debug("Identifying the key for the payment is it for customer or supplier.");
-                if ((requestMap.containsKey("customerId")) || requestMap.containsKey("pending")){
-
+                Payment payment = null;
+                if (requestMap.containsKey("customerId")) {
                     logger.debug("The request for the adding payment of the customer has been received.");
-                    Customer customer = customerRepository.findById(Integer.parseInt(requestMap.get("customerId")));
+                    System.out.println(requestMap.get("customerId"));
+                    Customer customer = null;
+                    try {
+                        customer = customerRepository.findById(((Integer) requestMap.get("customerId")));
+                    } catch (ClassCastException e) {
+                        System.out.print("eXCEPTION IN THE Map:" + requestMap);
+                    }
 
-                    Payment payment = null ;
-//                    try {
-////                        payment = new Payment(dateFormat.parse(requestMap.get("dueDate")), Long.parseLong(requestMap.get("pending")),requestMap.get("data") customer, );
-//                    } catch (ParseException e) {
-//                        e.printStackTrace();
-//                    }
-                    paymentRepository.save(payment);
-                } else if (requestMap.containsKey("supplierId") || requestMap.containsKey("outstanding")){
+                    PaymentMethod paymentMethod = paymentMethodRepository.getById((Integer) requestMap.get("methodId"));
+                    payment = new Payment((Date) requestMap.get("dueDate"), (Long) requestMap.get("paid"), (Long) requestMap.get("payable"), (Date) requestMap.get("data"), customer, paymentMethod);
+
+
+                } else if (requestMap.containsKey("supplierId")) {
 
                     logger.debug("The request for the adding payment of the supplier has been received.");
-                    Supplier supplier = supplierRepository.findById(Integer.parseInt(requestMap.get("supplierId")));
+                    Supplier supplier = supplierRepository.getById((Integer) requestMap.get("supplierId"));
+
+                    PaymentMethod paymentMethod = paymentMethodRepository.getById((Integer) requestMap.get("methodId"));
+                    payment = new Payment((Date) requestMap.get("dueDate"), (Long) requestMap.get("paid"), (Long) requestMap.get("payable"), (Date) requestMap.get("data"), supplier, paymentMethod);
 
                 }
 
-
-                Payment payment = null;
-                try {
-                    logger.info("Writing the value into the object of the payment using the request.");
-                    payment = mapper.readValue(requestBody, Payment.class);
-                } catch (IOException e) {
-                    logger.error("Error while writing the Payment data into its object", e);
-                }
+                paymentRepository.save(payment);
 
                 break;
             }
