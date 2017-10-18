@@ -1,5 +1,7 @@
 package com.was.inventory.model;
 
+import org.hibernate.annotations.Cascade;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -80,7 +82,7 @@ public class Payment {
     }
 
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.MERGE})
     @JoinColumn(name = "CustomerId")//mappedBy indicates the entity is the inverse of the relationship.
     public Customer getCustomer() {
         return customer;
@@ -90,7 +92,7 @@ public class Payment {
         this.customer = customer;
     }
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.MERGE})
     @JoinColumn(name = "SupplierId")
     public Supplier getSupplier() {
         return supplier;
@@ -108,7 +110,7 @@ public class Payment {
         this.date = date;
     }
 
-    @ManyToOne
+    @ManyToOne (cascade = {CascadeType.MERGE})
     @JoinColumn(name = "PaymentMethodId")
     public PaymentMethod getPaymentMethod() {
         return paymentMethod;

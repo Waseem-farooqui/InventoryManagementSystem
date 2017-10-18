@@ -25,6 +25,11 @@ public class PaymentMethod {
         this.name = name;
     }
 
+
+    public PaymentMethod(Integer id) {
+        this.id = id;
+    }
+
     /**
      *
      * @return

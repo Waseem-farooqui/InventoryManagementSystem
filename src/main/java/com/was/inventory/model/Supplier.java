@@ -30,6 +30,10 @@ public class Supplier {
         this.information = information;
     }
 
+    public Supplier(Integer id) {
+        this.id = id;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Integer getId() {
