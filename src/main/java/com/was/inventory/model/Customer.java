@@ -1,7 +1,5 @@
 package com.was.inventory.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import javax.persistence.*;
 import java.util.Set;
 
@@ -12,7 +10,13 @@ public class Customer {
 
     private Integer id;
 
-    private Information information;
+    private String name;
+
+    private String contactNo;
+
+    private String email;
+
+    private String address;
 
     private Set<Payment> payments;
 
@@ -20,14 +24,16 @@ public class Customer {
 
     private Set<Orders> orders;
 
+
     public Customer() {
     }
 
-    public Customer(Information information) {
-        this.information = information;
+    public Customer(String name, String contactNo, String email, String address) {
+        this.name = name;
+        this.contactNo = contactNo;
+        this.email = email;
+        this.address = address;
     }
-
-
 
     /**
      *
@@ -44,15 +50,37 @@ public class Customer {
         this.id = id;
     }
 
-    @OneToOne(cascade = CascadeType.ALL ,fetch = FetchType.EAGER)
-    @JoinColumn(name = "Information_id")
-    @JsonManagedReference(value = "customer-reference")
-    public Information getInformation() {
-        return information;
+
+    public String getName() {
+        return name;
     }
 
-    public void setInformation(Information information) {
-        this.information = information;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getContactNo() {
+        return contactNo;
+    }
+
+    public void setContactNo(String contactNo) {
+        this.contactNo = contactNo;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
@@ -92,6 +120,6 @@ public class Customer {
                 "contact_no = %s, " +
                 "address = %s, " +
                 "email = %s}",
-                id,information.getName(), information.getContactNo(), information.getAddress(), information.getEmail());
+                id,name, contactNo, address, email);
     }
 }

@@ -33,6 +33,21 @@ public class Item {
     private Set<Purchase> purchases;
 
 
+    public Item() {
+    }
+
+    public Item(String name, Category category, String description, String color, Long sellingPrice, Long buyingPrice, Integer quantity) {
+        this.name = name;
+        this.category = category;
+        this.description = description;
+        this.color = color;
+        this.sellingPrice = sellingPrice;
+        this.buyingPrice = buyingPrice;
+        this.quantity = quantity;
+    }
+
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Integer getId() {

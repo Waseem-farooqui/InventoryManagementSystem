@@ -1,10 +1,5 @@
 package com.was.inventory.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import javax.persistence.*;
 import java.util.Set;
 
@@ -14,7 +9,13 @@ public class Supplier {
 
     private Integer id;
 
-    private Information information;
+    private String name;
+
+    private String contactNo;
+
+    private String email;
+
+    private String address;
 
     private Set<Payment> payments;
 
@@ -26,8 +27,11 @@ public class Supplier {
     public Supplier() {
     }
 
-    public Supplier(Information information) {
-        this.information = information;
+    public Supplier(String name, String contactNo, String email, String address) {
+        this.name = name;
+        this.contactNo = contactNo;
+        this.email = email;
+        this.address = address;
     }
 
     public Supplier(Integer id) {
@@ -44,15 +48,36 @@ public class Supplier {
         this.id = id;
     }
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "InformationId")
-    @JsonManagedReference(value = "supplier-reference")
-    public Information getInformation() {
-        return information;
+    public String getName() {
+        return name;
     }
 
-    public void setInformation(Information information) {
-        this.information = information;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getContactNo() {
+        return contactNo;
+    }
+
+    public void setContactNo(String contactNo) {
+        this.contactNo = contactNo;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
