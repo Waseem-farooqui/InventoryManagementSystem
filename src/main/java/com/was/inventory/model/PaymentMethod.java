@@ -1,5 +1,7 @@
 package com.was.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -54,6 +56,7 @@ public class PaymentMethod {
     }
 
     @OneToMany(mappedBy = "paymentMethod", cascade = CascadeType.ALL)
+    @JsonManagedReference
     public Set<Payment> getPayments() {
         return payments;
     }

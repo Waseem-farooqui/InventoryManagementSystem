@@ -1,5 +1,8 @@
 package com.was.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -20,8 +23,6 @@ public class Customer {
 
     private Set<Payment> payments;
 
-    private Set<Sale> sales;
-
     private Set<Orders> orders;
 
 
@@ -33,6 +34,10 @@ public class Customer {
         this.contactNo = contactNo;
         this.email = email;
         this.address = address;
+    }
+
+    public Customer(Integer id) {
+        this.id = id;
     }
 
     /**
@@ -59,6 +64,7 @@ public class Customer {
         this.name = name;
     }
 
+    @Column(name = "contact_no", nullable = false, unique = true)
     public String getContactNo() {
         return contactNo;
     }
@@ -67,6 +73,7 @@ public class Customer {
         this.contactNo = contactNo;
     }
 
+    @Column(name = "email", nullable = false, unique = true)
     public String getEmail() {
         return email;
     }
@@ -84,6 +91,8 @@ public class Customer {
     }
 
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+//    @JsonManagedReference
+    @JsonIgnore
     public Set<Payment> getPayments() {
         return payments;
     }
@@ -92,19 +101,9 @@ public class Customer {
         this.payments = payments;
     }
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "CustomerSales", joinColumns = @JoinColumn(name = "Customer_id",
-            referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "Sale_id", referencedColumnName = "id"))
-    public Set<Sale> getSales() {
-        return sales;
-    }
-
-    public void setSales(Set<Sale> sales) {
-        this.sales = sales;
-    }
-
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+//    @JsonManagedReference
+    @JsonIgnore
     public Set<Orders> getOrders() {
         return orders;
     }

@@ -1,5 +1,8 @@
 package com.was.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -8,15 +11,17 @@ import java.util.Set;
 public class Item {
 
 
-   private Integer id;
+//   private Integer id;
 
-    private String name;
+//    private String name;
 
     private Category category;
 
+    private ItemsKey id;
+
     private String description;
 
-    private String color;
+//    private String color;
 
     private Long sellingPrice;
 
@@ -36,38 +41,34 @@ public class Item {
     public Item() {
     }
 
-    public Item(String name, Category category, String description, String color, Long sellingPrice, Long buyingPrice, Integer quantity) {
-        this.name = name;
+//    public Item(String name, Category category, String description, String color, Long sellingPrice, Long buyingPrice, Integer quantity) {
+//        this.name = name;
+//        this.category = category;
+//        this.description = description;
+//        this.color = color;
+//        this.sellingPrice = sellingPrice;
+//        this.buyingPrice = buyingPrice;
+//        this.quantity = quantity;
+//    }
+
+
+    public Item(ItemsKey id, Integer quantity) {
+        this.id = id;
+        this.quantity = quantity;
+    }
+
+    public Item(Category category, String description, ItemsKey itemsKey, Long sellingPrice, Long buyingPrice, Integer quantity) {
         this.category = category;
         this.description = description;
-        this.color = color;
+        this.id = itemsKey;
         this.sellingPrice = sellingPrice;
         this.buyingPrice = buyingPrice;
         this.quantity = quantity;
     }
 
-
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @ManyToOne
     @JoinColumn(name = "CategoryId")
+    @JsonBackReference
     public Category getCategory() {
         return category;
     }
@@ -84,14 +85,6 @@ public class Item {
         this.description = description;
     }
 
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
     public Long getSellingPrice() {
         return sellingPrice;
     }
@@ -100,9 +93,20 @@ public class Item {
         this.sellingPrice = sellingPrice;
     }
 
+
+    @EmbeddedId
+    public ItemsKey getId() {
+        return id;
+    }
+
+    public void setId(ItemsKey id) {
+        this.id = id;
+    }
+
     public Long getBuyingPrice() {
         return buyingPrice;
     }
+
 
     public void setBuyingPrice(Long buyingPrice) {
         this.buyingPrice = buyingPrice;
@@ -125,6 +129,7 @@ public class Item {
     }
 
     @ManyToMany(mappedBy = "items")
+    @JsonBackReference
     public Set<Sale> getSales() {
         return sales;
     }
@@ -134,9 +139,11 @@ public class Item {
     }
 
     @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "ItemOrders", joinColumns = @JoinColumn(name = "Item_id",
-            referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "Orders_id", referencedColumnName = "id"))
+    @JoinTable(name = "ItemOrders", joinColumns = {
+            @JoinColumn(name = "Item_name", referencedColumnName = "name"),
+            @JoinColumn(name = "Item_color", referencedColumnName = "color")},
+            inverseJoinColumns = {@JoinColumn(name = "Orders_id", referencedColumnName = "id")})
+    @JsonManagedReference
     public Set<Orders> getOrders() {
         return orders;
     }
@@ -146,6 +153,7 @@ public class Item {
     }
 
     @ManyToMany(mappedBy = "items")
+    @JsonBackReference
     public Set<Purchase> getPurchases() {
         return purchases;
     }
@@ -153,4 +161,5 @@ public class Item {
     public void setPurchases(Set<Purchase> purchases) {
         this.purchases = purchases;
     }
+
 }

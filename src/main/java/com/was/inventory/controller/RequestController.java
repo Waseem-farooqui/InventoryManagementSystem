@@ -17,21 +17,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Waseem ud din
  * @version 0.1
  */
 @Controller // This means that this class is a Controller
+//@CrossOrigin(origins = "*:8080")
+@CrossOrigin(origins = "localhost:8080")
 @RequestMapping(path = "/inventory") // This means URL's start with /demo (after Application path)
 public class RequestController {
 
@@ -75,140 +69,197 @@ public class RequestController {
         this.mapper = mapper;
     }
 
-    @RequestMapping(value = "/add/{type}", method = RequestMethod.POST, consumes = "application/json")
+    @RequestMapping(value = "/add/customer", method = RequestMethod.POST, consumes = "application/json")
     public @ResponseBody
-    ResponseEntity<JsonNode> addData(@NotBlank @RequestBody String requestBody,
-                                     @PathVariable String type) {
-//                                     @RequestParam(value = "payment", required = false) String payment) {
+    ResponseEntity<JsonNode> addCustomer(@NotBlank @RequestBody Customer customer) {
 
         logger.debug("Request for the inserting the data.");
         ObjectNode responseBody = mapper.createObjectNode();
 
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Map<String, Object> requestMap = new HashMap<String, Object>();
         logger.debug("Checking the condition of the type.");
-        switch (type) {
-            case "customer": {
-                logger.debug("The condition for insertion of customer");
-                logger.debug("Creating the reference of the Customer class.");
-                Customer customer = null;
-                try {
-                    logger.info("Writing the value into the object of the information (Customer) using the request.");
-                    customer = mapper.readValue(requestBody, Customer.class);
-                } catch (IOException e) {
+        logger.debug("The condition for insertion of customer");
+        logger.debug("Creating the reference of the Customer class.");
 
-                    logger.error("Error while writing the information (Customer) data into its object", e);
-                }
-
-                try {
-                    logger.info("Inserting the record into the database via customer");
-                    customerRepository.save(customer);
-                } catch (DataIntegrityViolationException e) {
-                    logger.error("Error while inserting the Customer data into its database table.", e);
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
-                }
-
-                break;
-            }
-            case "supplier": {
-                logger.debug("The condition for insertion of Supplier");
-                logger.debug("Creating the reference of the Supplier class.");
-                Supplier supplier = null;
-                try {
-                    logger.info("Writing the value into the object of the supplier (Supplier) using the request.");
-                    supplier = mapper.readValue(requestBody, Supplier.class);
-                } catch (IOException e) {
-                    logger.error("Error while writing the supplier (Supplier) data into its object", e);
-                }
-
-                try {
-
-                    logger.info("Inserting the record into the database via supplier");
-                    supplierRepository.save(supplier);
-                } catch (DataIntegrityViolationException e) {
-                    logger.error("Error while inserting the supplier (Supplier) data into its database table.", e);
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
-                }
-
-                break;
-
-            }
-            case "payment": {
-
-                logger.debug("The condition for the insertion of the payment.");
-
-                logger.debug("Creating the reference of the Payment class.");
-                Payment payment = null;
-                try {
-                    logger.info("Writing the value into the object of the payment using the request.");
-                    payment = mapper.readValue(requestBody, Payment.class);
-                } catch (IOException e) {
-                    logger.error("Error while writing the payment data into its object", e);
-                }
-
-                try {
-
-                    logger.info("Inserting the record into the payment table via its object");
-                    paymentRepository.save(payment);
-                } catch (DataIntegrityViolationException e) {
-                    logger.error("Error while inserting the payment data into its database table.", e);
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
-                }
-
-                break;
-            }
-
-            case "paymentMethod": {
-
-                logger.debug("The condition for insertion of paymentMethod");
-                logger.debug("Creating the reference of the paymentMethod class.");
-                PaymentMethod paymentMethod = null;
-                try {
-                    logger.info("Writing the value into the object of the paymentMethod using the request.");
-                    paymentMethod = mapper.readValue(requestBody, PaymentMethod.class);
-                } catch (IOException e) {
-
-                    logger.error("Error while writing the paymentMethod data into its object", e);
-                }
-
-                try {
-                    logger.info("Inserting the record into the table of PaymentMethod");
-                    paymentMethodRepository.save(paymentMethod);
-                } catch (DataIntegrityViolationException e) {
-                    logger.error("Error while inserting the PaymentMethod data into its database table.", e);
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
-                }
-                break;
-            }
-
-            case "itemCategory": {
-
-                logger.debug("The condition for insertion of itemCategory");
-                logger.debug("Creating the reference of the itemCategory class.");
-                Category itemCategory = null;
-                try {
-                    logger.info("Writing the value into the object of the itemCategory using the request.");
-                    itemCategory = mapper.readValue(requestBody, Category.class);
-                } catch (IOException e) {
-
-                    logger.error("Error while writing the itemCategory data into its object", e);
-                }
-
-                try {
-                    logger.info("Inserting the record into the table of ItemCategory");
-                    categoryRepository.save(itemCategory);
-                } catch (DataIntegrityViolationException e) {
-                    logger.error("Error while inserting the ItemCategory data into its database table.", e);
-                    return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
-                }
-                break;
-            }
-
-
+        try {
+            logger.info("Inserting the record into the database via customer");
+            customerRepository.save(customer);
+            return ResponseEntity.status(HttpStatus.OK).body(responseBody.put("info", "Successfully Inserted the customer"));
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Error while inserting the Customer data into its database table.", e);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
         }
-        return ResponseEntity.status(HttpStatus.OK).
+    }
 
-                body(responseBody.put("success", "Inserted"));
+    @RequestMapping(value = "/add/supplier", method = RequestMethod.POST, consumes = "application/json")
+    public @ResponseBody
+    ResponseEntity<JsonNode> addSupplier(@NotBlank @RequestBody Supplier supplier) {
+
+        logger.debug("Request for the inserting the data.");
+        ObjectNode responseBody = mapper.createObjectNode();
+
+        logger.debug("Checking the condition of the type.");
+        logger.debug("The condition for insertion of supplier");
+        logger.debug("Creating the reference of the Customer class.");
+
+        try {
+            logger.info("Inserting the record into the database via supplier");
+            supplierRepository.save(supplier);
+            return ResponseEntity.status(HttpStatus.OK).body(responseBody.put("info", "Successfully Inserted the supplier"));
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Error while inserting the Customer data into its database table.", e);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
+        }
+    }
+
+    // TODO: 10/20/17 Have to handle the payable and paid on the 2nd transaction.
+    @RequestMapping(value = "/add/payment", method = RequestMethod.POST, consumes = "application/json")
+    public @ResponseBody
+    ResponseEntity<JsonNode> addPayment(@NotBlank @RequestBody Payment payment) {
+
+        logger.debug("Request for the inserting the payment data.");
+        logger.info(payment.getCustomer());
+        ObjectNode responseBody = mapper.createObjectNode();
+
+        try {
+            logger.info("Inserting the record into the database via payment");
+            paymentRepository.save(payment);
+            return ResponseEntity.status(HttpStatus.OK).body(responseBody.put("info", "Successfully Inserted the payment"));
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Error while inserting the Customer data into its database table.", e);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
+        }
+    }
+
+    @RequestMapping(value = "/add/paymentMethod", method = RequestMethod.POST, consumes = "application/json")
+    public @ResponseBody
+    ResponseEntity<JsonNode> addPaymentMethod(@NotBlank @RequestBody PaymentMethod paymentMethod) {
+
+        logger.debug("Request for the inserting the payment method.");
+        ObjectNode responseBody = mapper.createObjectNode();
+
+        try {
+            logger.info("Inserting the record into the database via paymentMethod");
+            paymentMethodRepository.save(paymentMethod);
+            return ResponseEntity.status(HttpStatus.OK).body(responseBody.put("info", "Successfully Inserted the paymentMethod"));
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Error while inserting the Customer data into its database table.", e);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
+        }
+    }
+
+    @RequestMapping(value = "/add/itemCategory", method = RequestMethod.POST, consumes = "application/json")
+    public @ResponseBody
+    ResponseEntity<JsonNode> addItemCategory(@NotBlank @RequestBody Category category) {
+
+        logger.debug("Request for the inserting the item category.");
+        ObjectNode responseBody = mapper.createObjectNode();
+        try {
+            logger.info("Inserting the record into the database via category");
+            categoryRepository.save(category);
+            return ResponseEntity.status(HttpStatus.OK).body(responseBody.put("info", "Successfully Inserted the category"));
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Error while inserting the Item Category data into its database table.", e);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
+        }
+    }
+
+
+    // TODO: 10/20/17  Have to handle the case in which we have same composite key and inserting the quantity.
+    @RequestMapping(value = "/add/item", method = RequestMethod.POST, consumes = "multipart/form-data")
+    public @ResponseBody
+    ResponseEntity<JsonNode> addItem(@RequestPart("file") MultipartFile file,
+                                     @NotBlank @RequestPart("data") String requestBody) {
+
+        ObjectNode responseBody = new ObjectMapper().createObjectNode();
+        logger.debug("In item insertion controller method.");
+
+
+        logger.debug("Creating the reference of the item class.");
+        Item item = null;
+        try {
+            logger.info("Writing the value into the object of the Item using the request.");
+            item = mapper.readValue(requestBody, Item.class);
+
+        } catch (IOException e) {
+            logger.error("Error while writing the Item data into its object", e);
+        }
+
+        // Getting the information about the item so that store with specifics in the database
+
+        if (file.isEmpty()) {
+            return new ResponseEntity("please select a file!", HttpStatus.NO_CONTENT);
+        }
+        // Creating the file for writing it into the dirctory
+        File newFile = new File(uploadingdir + item.getCategory().getId() + "/" + file.getOriginalFilename());
+        newFile.getParentFile().mkdirs();
+        try {
+            file.transferTo(newFile);
+        } catch (IOException e) {
+            logger.error("Error Occured while trying to write an image file.");
+            e.printStackTrace();
+        }
+
+        item.setPictureLink(newFile.getAbsolutePath());
+        try {
+            logger.info("Inserting the record into the Item table via its object");
+            itemRepository.save(item);
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Error while inserting the payment data into its database table.", e);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(responseBody.put("info", "Inserted"));
+
+    }
+
+    @RequestMapping(value = "/add/sale", method = RequestMethod.POST, consumes = "application/json")
+    public @ResponseBody
+    ResponseEntity<JsonNode> addSale(@NotBlank @RequestBody Sale sale) {
+
+        logger.debug("Request for the inserting the item sale.");
+        ObjectNode responseBody = mapper.createObjectNode();
+        try {
+
+            // TODO "Have to put a check payable must be greater then or equal to paid"
+            logger.info("Inserting the record into the database via sale");
+            saleRepository.save(sale);
+            return ResponseEntity.status(HttpStatus.OK).body(responseBody.put("info", "Successfully Inserted the sale"));
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Error while inserting the sales data into its database table.", e);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
+        }
+    }
+
+    @RequestMapping(value = "/add/purchase", method = RequestMethod.POST, consumes = "application/json")
+    public @ResponseBody
+    ResponseEntity<JsonNode> addPurchase(@NotBlank @RequestBody Purchase purchase) {
+
+        logger.debug("Request for the inserting the item purchase.");
+        ObjectNode responseBody = mapper.createObjectNode();
+        try {
+            logger.info("Inserting the record into the database via purchase");
+            purchaseRepository.save(purchase);
+            return ResponseEntity.status(HttpStatus.OK).body(responseBody.put("info", "Successfully Inserted the purchase"));
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Error while inserting the purchase data into its database table.", e);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
+        }
+    }
+
+    @RequestMapping(value = "/add/order", method = RequestMethod.POST, consumes = "application/json")
+    public @ResponseBody
+    ResponseEntity<JsonNode> addOrder(@NotBlank @RequestBody Orders orders) {
+
+        logger.debug("Request for the inserting the item orders.");
+        ObjectNode responseBody = mapper.createObjectNode();
+        try {
+            logger.info("Inserting the record into the database via orders");
+            orderRepository.save(orders);
+            return ResponseEntity.status(HttpStatus.OK).body(responseBody.put("info", "Successfully Inserted the orders"));
+        } catch (DataIntegrityViolationException e) {
+            logger.error("Error while inserting the orders data into its database table.", e);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
+        }
     }
 
     @RequestMapping(value = "/get/{type}", method = RequestMethod.GET, produces = "application/json")
@@ -243,48 +294,5 @@ public class RequestController {
 
     }
 
-    @RequestMapping(value = "/insert/item", method = RequestMethod.POST, consumes = "multipart/form-data")
-    public @ResponseBody ResponseEntity<JsonNode> addItem(@RequestPart("file") MultipartFile file,
-                                                          @NotBlank @RequestPart("data") String requestBody) {
 
-        ObjectNode responseBody = new ObjectMapper().createObjectNode();
-        logger.debug("In item insertion controller method.");
-
-
-        logger.debug("Creating the reference of the item class.");
-        Item item = null;
-        try {
-            logger.info("Writing the value into the object of the Item using the request.");
-            item = mapper.readValue(requestBody, Item.class);
-        } catch (IOException e) {
-            logger.error("Error while writing the Item data into its object", e);
-        }
-
-        // Getting the information about the item so that store with specifics in the database
-
-        if (file.isEmpty()) {
-            return new ResponseEntity("please select a file!", HttpStatus.NO_CONTENT);
-        }
-        // Creating the file for writing it into the dirctory
-        File newFile = new File(uploadingdir + item.getCategory().getId()+"/"+file.getOriginalFilename());
-        newFile.getParentFile().mkdirs();
-        try {
-              file.transferTo(newFile);
-        } catch (IOException e) {
-            logger.error("Error Occured while trying to write an image file.");
-            e.printStackTrace();
-        }
-
-        item.setPictureLink(newFile.getAbsolutePath());
-        try {
-            logger.info("Inserting the record into the Item table via its object");
-            itemRepository.save(item);
-        } catch (DataIntegrityViolationException e) {
-            logger.error("Error while inserting the payment data into its database table.", e);
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody.put("error", e.getCause().toString()));
-        }
-
-        return ResponseEntity.status(HttpStatus.OK).body(responseBody.put("info", "Inserted"));
-
-    }
 }

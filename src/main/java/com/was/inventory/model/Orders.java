@@ -1,5 +1,7 @@
 package com.was.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.Set;
@@ -22,6 +24,25 @@ public class Orders {
 
     private Date date;
 
+    public Orders() {
+    }
+
+    public Orders(Customer customer, Set<Item> items, Integer quantity, Date dueDate, Date date) {
+        this.customer = customer;
+        this.items = items;
+        this.quantity = quantity;
+        this.dueDate = dueDate;
+        this.date = date;
+    }
+
+    public Orders(Supplier supplier, Set<Item> items, Integer quantity, Date dueDate, Date date) {
+        this.supplier = supplier;
+        this.items = items;
+        this.quantity = quantity;
+        this.dueDate = dueDate;
+        this.date = date;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     public Integer getId() {
@@ -34,6 +55,7 @@ public class Orders {
 
     @ManyToOne
     @JoinColumn(name = "CustomerId")
+    @JsonBackReference
     public Customer getCustomer() {
         return customer;
     }
@@ -44,6 +66,7 @@ public class Orders {
 
     @ManyToOne
     @JoinColumn(name = "SupplierId")
+    @JsonBackReference
     public Supplier getSupplier() {
         return supplier;
     }
@@ -53,6 +76,7 @@ public class Orders {
     }
 
     @ManyToMany(mappedBy = "orders")
+    @JsonBackReference
     public Set<Item> getItems() {
         return items;
     }
@@ -69,6 +93,7 @@ public class Orders {
         this.quantity = quantity;
     }
 
+    @Column(nullable = false)
     public Date getDueDate() {
         return dueDate;
     }

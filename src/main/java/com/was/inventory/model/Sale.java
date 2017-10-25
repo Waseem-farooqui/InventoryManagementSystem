@@ -1,5 +1,9 @@
 package com.was.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.sun.istack.internal.Nullable;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -9,9 +13,18 @@ public class Sale {
 
     private Integer id;
 
-    private Set<Customer> customers;
+    private Set<Payment> payments;
 
     private Set<Item> items;
+
+
+    public Sale() {
+    }
+
+    public Sale(Set<Payment> payments, Set<Item> items) {
+        this.payments = payments;
+        this.items = items;
+    }
 
 
     @Id
@@ -24,19 +37,14 @@ public class Sale {
         this.id = id;
     }
 
-    @ManyToMany(mappedBy = "sales")
-    public Set<Customer> getCustomers() {
-        return customers;
-    }
 
-    public void setCustomers(Set<Customer> customers) {
-        this.customers = customers;
-    }
-
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinTable(name = "SaleItem", joinColumns = @JoinColumn(name = "Sale_id",
             referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "Item_id", referencedColumnName = "id"))
+            inverseJoinColumns = {
+                    @JoinColumn(name = "Item_name", referencedColumnName = "name"),
+                    @JoinColumn(name = "Item_color", referencedColumnName = "color")})
+    @JsonManagedReference
     public Set<Item> getItems() {
         return items;
     }
@@ -45,10 +53,28 @@ public class Sale {
         this.items = items;
     }
 
+    @OneToMany(cascade = CascadeType.ALL)//(mappedBy = "sale", cascade = {CascadeType.ALL, CascadeType.MERGE, CascadeType.PERSIST}, fetch = FetchType.LAZY)
+//    @Column(nullable = false)
+    @JoinColumn(name = "saleId")
+    @JsonBackReference
+    public Set<Payment> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(Set<Payment> payments) {
+        this.payments = payments;
+    }
+
     @Override
     public String toString() {
         return "Sale{" +
                 "id=" + id +
                 '}';
+    }
+
+    public void addPayment(Payment payment){
+        payment.setSale(this);
+        getPayments().add(payment) ;
+
     }
 }

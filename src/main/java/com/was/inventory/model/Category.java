@@ -1,5 +1,7 @@
 package com.was.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -24,6 +26,7 @@ public class Category {
         this.id = id;
     }
 
+    @Column(nullable = false, unique = true)
     public String getName() {
         return name;
     }
@@ -33,6 +36,7 @@ public class Category {
     }
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @JsonManagedReference
     public Set<Item> getItems() {
         return items;
     }

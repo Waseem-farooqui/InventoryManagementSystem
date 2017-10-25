@@ -1,5 +1,7 @@
 package com.was.inventory.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -20,9 +22,6 @@ public class Supplier {
     private Set<Payment> payments;
 
     private Set<Orders> orders;
-
-    private Set<Purchase> purchases;
-
 
     public Supplier() {
     }
@@ -56,6 +55,7 @@ public class Supplier {
         this.name = name;
     }
 
+    @Column(name = "contact_no", nullable = false, unique = true)
     public String getContactNo() {
         return contactNo;
     }
@@ -64,6 +64,7 @@ public class Supplier {
         this.contactNo = contactNo;
     }
 
+    @Column(name = "email", nullable = false, unique = true)
     public String getEmail() {
         return email;
     }
@@ -81,6 +82,7 @@ public class Supplier {
     }
 
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
+    @JsonManagedReference
     public Set<Payment> getPayments() {
         return payments;
     }
@@ -90,23 +92,12 @@ public class Supplier {
     }
 
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
+    @JsonManagedReference
     public Set<Orders> getOrders() {
         return orders;
     }
 
     public void setOrders(Set<Orders> orders) {
         this.orders = orders;
-    }
-
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "SupplierPurchases", joinColumns = @JoinColumn(name = "Supplier_id",
-            referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "Purchase_id", referencedColumnName = "id"))
-    public Set<Purchase> getPurchases() {
-        return purchases;
-    }
-
-    public void setPurchases(Set<Purchase> purchases) {
-        this.purchases = purchases;
     }
 }
