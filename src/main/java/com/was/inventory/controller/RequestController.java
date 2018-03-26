@@ -25,7 +25,7 @@ import java.io.IOException;
  */
 @Controller // This means that this class is a Controller
 //@CrossOrigin(origins = "*:8080")
-@CrossOrigin(origins = "localhost:8080")
+@CrossOrigin(origins = "*:8080")
 @RequestMapping(path = "/inventory") // This means URL's start with /demo (after Application path)
 public class RequestController {
 

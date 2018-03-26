@@ -1,50 +1,49 @@
 package com.was.inventory.filter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.stereotype.Component;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/**
- * Incase of cross origin this class could be used, I am not sure where I am using this class
- * but It was having some reason.
- * @author waseem
- *
- */
-public class CORSFilter extends OncePerRequestFilter {
+@Component
+public class CORSFilter implements Filter {
 
-	@Value(value = "${allowed.origin}")
-	private String origin;
+	private final Logger log = LoggerFactory.getLogger(CORSFilter.class);
 
-//	private static final org.logger = LogManager.getLogger(CORSFilter.class);
+    @Value(value = "${allowed.origin}")
+    private String origin;
 
-	/**
-	 * In case of cross origin issue this function would be used.
-	 * @param request
-	 * @param response
-	 * @param filterChain
-	 * @throws ServletException
-	 * @throws IOException
-	 */
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
-		response.addHeader("Access-Control-Allow-Origin", origin);
-
-		if (request.getHeader("Access-Control-Request-Method") != null && "OPTIONS".equals(request.getMethod())) {
-			logger.trace("Sending Header....");
-			// CORS "pre-flight" request
-			response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-			response.addHeader("Access-Control-Allow-Headers", "Authorization");
-			response.addHeader("Access-Control-Allow-Headers", "Content-Type");
-			response.addHeader("Access-Control-Max-Age", "1");
-		}
-
-		filterChain.doFilter(request, response);
+	public CORSFilter() {
+		log.info("SimpleCORSFilter init");
 	}
 
+	@Override
+	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+
+		HttpServletRequest request = (HttpServletRequest) req;
+		HttpServletResponse response = (HttpServletResponse) res;
+
+		response.setHeader("Access-Control-Allow-Origin",request.getHeader("Origin"));
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+		response.setHeader("Access-Control-Max-Age", "3600");
+		response.setHeader("Access-Control-Allow-Headers", "Content-Type, Accept, X-Requested-With, remember-me");
+
+		chain.doFilter(req, res);
+
+
+	}
+
+	@Override
+	public void init(FilterConfig filterConfig) {
+	}
+
+	@Override
+	public void destroy() {
+	}
 }
